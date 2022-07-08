@@ -1,0 +1,1 @@
+web: ./build/install/com.herokuapp.encodeapi/bin/com.herokuapp.encodeapi
