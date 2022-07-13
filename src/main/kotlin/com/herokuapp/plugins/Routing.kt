@@ -17,7 +17,7 @@ fun Application.configureRouting() {
 	val det = 27810.0
 	val decode = mk.ndarray(mk[listOf(69 / det, -15 / det), listOf(-78 / det, 420 / det)])
 	
-	val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+	val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
 	
 	// Starting point for a Ktor app:
 	routing {
@@ -40,7 +40,12 @@ fun Application.configureRouting() {
 		get("/decode") {
 			val encoded = call.request.queryParameters["msg"] as String
 			val msg = String(Base64.getDecoder().decode(encoded.split(":")[1].toByteArray()))
-			val token = String(Base64.getDecoder().decode(encoded.split(":")[0].toByteArray()))
+			val token = try {
+				String(Base64.getDecoder().decode(encoded.split(":")[0].toByteArray()))
+			} catch (e: Exception) {
+				call.respondText { "Please provide a valid token" }
+				return@get
+			}
 			val providedToken = String(Base64.getDecoder().decode(call.request.queryParameters["token"]))
 			if (token.length - providedToken.length != 0 || token.indices.map { token[it] == providedToken[it] }.contains(false)) {
 				call.respondText { "Please provide a valid token" }
@@ -55,7 +60,7 @@ fun Application.configureRouting() {
 			d2List.map(list::addAll)
 			call.respondText { list.map { it.roundToInt().toChar() }.joinToString("").dropLastWhile { it.toString() == "\u200B" } }
 		}
-		get ("/") {
+		get("/") {
 			call.respondText { "This is an encoding api" }
 		}
 	}
